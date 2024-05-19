@@ -14,12 +14,11 @@
   file,
   lockFile,
 }: let
-  cargoToml = builtins.fromTOML (builtins.readFile ../core/Cargo.toml);
+  cargoToml = builtins.fromTOML (builtins.readFile ../Cargo.toml);
 in
-  rustPlatform.buildRustPackage rec {
-    pname = cargoToml.package.name;
-    version = cargoToml.package.version;
-
+  rustPlatform.buildRustPackage {
+    pname = "lodestone_core";
+    version = "0.5.0-beta.2";
     src = ../.;
 
     buildInputs = [
@@ -31,7 +30,16 @@ in
       file
     ];
 
-    cargoLock = {inherit lockFile;};
+    cargoLock = {
+      lockFile = ../Cargo.lock;
+      allowBuiltinFetchGit = true;
+      outputHashes = {
+        "safe-path-0.1.0" = "sha256-udvN/jxnE9kWWRXypgw8NLYx8xbQkZJRyGrV+fdxkKo=";
+        "sqlx-0.6.2" = "sha256-+A5po+rvD7jQYqY+1zhPiDHCZxrwN7E/Lgg7hEqAEO0=";
+      };
+    };
+
+    buildFeatures = ["vendored-openssl"];
 
     checkInputs = [cargo rustc];
 
