@@ -1,4 +1,4 @@
-2 {
+{
   description = "A free, open source server hosting tool for Minecraft and other multiplayers.";
 
   inputs = {
@@ -43,7 +43,13 @@
         packages = let
           lockFile = ./Cargo.lock;
         in rec {
-          lodestone = pkgs.callPackage ./nix {inherit inputs lockFile;};
+          lodestone = pkgs.callPackage ./nix/default.nix {inherit inputs lockFile;};
+          default = lodestone;
+        };
+      };
+      flake = _: {
+        nixosModules = rec {
+          lodestone = import ./nix/module.nix inputs.self;
           default = lodestone;
         };
       };
