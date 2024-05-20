@@ -7,9 +7,15 @@
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
+    rust-overlay.url = "github:oxalica/rust-overlay";
   };
 
-  outputs = inputs @ {flake-parts, ...}:
+  outputs = inputs @ {
+    flake-parts,
+    rust-overlay,
+    nixpkgs,
+    ...
+  }:
     flake-parts.lib.mkFlake {inherit inputs;} {
       systems = ["x86_64-linux" "aarch64-linux"];
 
@@ -21,6 +27,8 @@
         system,
         ...
       }: let
+        overlays = [(import rust-overlay)];
+        pkgs = import nixpkgs {inherit system overlays;};
         inherit (inputs.nixpkgs) lib;
         inherit (lib) getExe;
       in {
@@ -31,13 +39,10 @@
 
           packages = with pkgs; [
             alejandra # nix formatter
-            rustfmt # rust formatter
             statix # lints and suggestions
             deadnix # clean up unused nix code
-            rustc # rust compiler
             gcc
-            cargo # rust package manager
-            clippy # opinionated rust formatter
+            (rust-bin.fromRustupToolchainFile ./rust-toolchain.toml)
           ];
         };
         packages = let

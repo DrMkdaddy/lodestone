@@ -8,10 +8,8 @@
   cpuid,
   libcpuid,
   libffi,
-  rustfmt,
-  rustc,
-  cargo,
   file,
+  rust-bin,
   lockFile,
 }: let
   cargoToml = builtins.fromTOML (builtins.readFile ../Cargo.toml);
@@ -41,14 +39,12 @@ in
 
     buildFeatures = ["vendored-openssl"];
 
-    checkInputs = [cargo rustc];
+    checkInputs = [(rust-bin.fromRustupToolchainFile ../rust-toolchain.toml)];
 
     nativeBuildInputs = [
       pkg-config
       makeWrapper
-      rustfmt
-      rustc
-      cargo
+      (rust-bin.fromRustupToolchainFile ../rust-toolchain.toml)
     ];
 
     doCheck = true;
